@@ -1,0 +1,33 @@
+version: "3.3"
+services:
+
+  pgvector:
+      container_name: pgvector
+      hostname: pgvector
+      image: pgvector
+      #build: 
+      #    context: pgvector
+      #    dockerfile: Dockerfile
+      environment:
+        - POSTGRES_PASSWORD=password
+        - POSTGRES_USER=postgres
+      ports:
+        - 5432:5432
+      mem_limit: "1g"
+      volumes:
+        - ./dbps:/var/lib/postgresql/data:rw
+      restart: always
+
+  jupyterlab:
+    image: jupyter/datascience-notebook
+    hostname: jupyterlab
+    container_name: jupyterlab
+    restart: always
+    ports:
+      - 8888:8888
+    volumes:
+      - "./jupyterlab:/opt/notebooks"
+
+    command: "bash -c 'pip3 install -r /opt/notebooks/requirements.txt && jupyter lab --no-browser --ip=0.0.0.0 --allow-root --notebook-dir=/opt/notebooks  '"
+    depends_on:
+      - pgvector
